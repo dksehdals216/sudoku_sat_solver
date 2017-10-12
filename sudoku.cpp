@@ -231,8 +231,7 @@ void cli_run(std::string in, std::string form, std::string out)
 			}
 			else
 			{
-				std::cout << 
-				exit(1);
+				std::cout << "no solution"; 
 			}
 			if(token.rfind("-",0) != 0)
 			{
