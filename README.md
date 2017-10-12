@@ -20,5 +20,7 @@
   Sample given will be stored in a file called input.txt,
   while output will be stored in a generated file called output.txt
   
- Tested on Linux Mint 18.2 Sonya 
+ Tested on Linux Mint 18.2 "Sonya" - Cinnamon (64-bit)
+ 
+ 
   
