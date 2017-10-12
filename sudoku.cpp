@@ -24,11 +24,14 @@
  * B. Execute SAT solver to solve formula.txt. Recieve SAT solver output
  * C. Interpret SAT solver result, save solution to output.txt, or print no solution
  *
+ * 
+ *
  * NOTE - input.txt will be in a format that 0 will represent a blank space, else it 
  * will be filled from numbers 1~9
  * 
  *
- * Resources: https://www.dwheeler.com/essays/minisat-user-guide.html
+ * Resources: 
+ * https://www.dwheeler.com/essays/minisat-user-guide.html
  * http://www.cs.qub.ac.uk/~I.Spence/SuDoku/SuDoku.html
  * https://ubuntuforums.org/archive/index.php/t-285287.html
  * 
@@ -87,17 +90,18 @@ void load(std::string fname, int *given_cell)
 			token = content.substr(0, pos);
 			token.erase(std::remove(token.begin(), token.end(), '\n'), token.end());
 
-			std::stringstream myStream(token);
+			std::stringstream myStream(token);						//convert string to number
 			myStream >> temp;
+
 			if(temp != 0)
 			{
-				n_cell[k] = concat(j,i,temp);
+				given_cell[k] = concat(j,i,temp);					//store into array as (i,j,k)
 				k++;
 			}
 
 			content.erase(0, pos + delim.length());					//delete up to delim after storing string
 			i++;
-			if(i > 9)
+			if(i > MAX_SIZE)										//reset row col values
 			{
 				j++;
 				i = 1;
@@ -114,7 +118,6 @@ void unload(std::string fname, int *given_cell)
 	int cnt = 0;
 	int n_clauses = 0;
 	int temp = 0;
-	int store[9][9];
 	int k = 0;
 
 
@@ -127,16 +130,18 @@ void unload(std::string fname, int *given_cell)
 	{
 		write_f << "p cnf 729 11897" << "\n";	
 				
-		for(int i = 0; i < 28; i++)
+		write_f << "c given caluses\n";
+		for(int i = 0; i < 28; i++)										//add given input as clause				
 		{
 			write_f << transform(given_cell[i]) << " 0\n";
 		}
 
-		for(int i = 1; i <= 9; i++)
+		write_f << "c row clauses\n";
+		for(int i = 1; i <= MAX_SIZE; i++)								
 		{ 	
-			for(int k = 1; k <= 9; k++)
+			for(int k = 1; k <= MAX_SIZE; k++)
 			{
-				for(int j = 1; j <= 9; j++)
+				for(int j = 1; j <= MAX_SIZE; j++)
 				{
 					write_f << transform(concat(i, j, k)) << " ";
 				}
@@ -144,11 +149,12 @@ void unload(std::string fname, int *given_cell)
 			}
 		}
 
-		for(int j = 1; j <=9; j++)
+		write_f << "c col clauses\n";
+		for(int j = 1; j <= MAX_SIZE; j++)								
 		{
-			for(int k = 1; k <= 9; k++)
+			for(int k = 1; k <= MAX_SIZE; k++)
 			{
-				for(int i = 1; i <= 9; i++)
+				for(int i = 1; i <= MAX_SIZE; i++)
 				{
 					write_f << transform(concat(i, j, k)) << " ";
 				}
@@ -157,12 +163,11 @@ void unload(std::string fname, int *given_cell)
 		}
 
 		write_f << "c box clauses\n";
-
 		for(int r = 0; r <= 6; r += 3)
 		{
 			for(int s = 0; s <= 6; s += 3)
 			{
-				for(int n = 1; n <= 9; n++)
+				for(int n = 1; n <= MAX_SIZE; n++)
 				{
 					for(int i = 1; i <= 3; i++)
 					{
@@ -178,13 +183,13 @@ void unload(std::string fname, int *given_cell)
 		
 		write_f << "c restrictions\n";
 
-		for(int i = 1; i <= 9; i++)
+		for(int i = 1; i <= MAX_SIZE; i++)
 		{
-			for(int j = 1; j <= 9; j++)
+			for(int j = 1; j <= MAX_SIZE; j++)
 			{
 				for(int n = 1; n <= 8; n++)
 				{
-					for(int m = n + 1; m <= 9; m++)
+					for(int m = n + 1; m <= MAX_SIZE; m++)
 					{
 						write_f << "-" << transform(concat(i,j,n)) << " -" << transform(concat(i,j,m)) << " 0\n";
 						//write_f << "-" << transform(concat(i,j,m)) << " -" << transform(concat(i,j,n)) << " 0\n";
@@ -215,23 +220,27 @@ void cli_run(std::string in, std::string form, std::string out)
 	int row, col, val;
 	int temp;
 	int cnt = 1;
+	int t_cnt = 1;
+	bool s_switch = true;
 
 	read_f.open(form);
 
 	if (read_f)
 	{
-		std::string content((std::istreambuf_iterator<char>(read_f)), std::istreambuf_iterator<char>());	//read content of string using istreambuf stl
+		std::string content((std::istreambuf_iterator<char>(read_f)), std::istreambuf_iterator<char>());	
 
-		while((pos = content.find(delim)) != std::string::npos)		//tokenize using substr and find
+		while((pos = content.find(delim)) != std::string::npos && s_switch == true)		//tokenize using substr and find
 		{
 			token = content.substr(0, pos);
 			if(token.rfind("SAT", 0) == 0)
 			{
 				token.erase(0, 4);
+				t_cnt++;
 			}
-			else
+			else if(t_cnt == 1)
 			{
 				std::cout << "no solution"; 
+				s_switch = false;
 			}
 			if(token.rfind("-",0) != 0)
 			{
