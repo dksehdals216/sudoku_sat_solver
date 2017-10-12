@@ -131,7 +131,7 @@ void unload(std::string fname, int *given_cell)
 		write_f << "p cnf 729 11897" << "\n";	
 				
 		write_f << "c given caluses\n";
-		for(int i = 0; i < 28; i++)										//add given input as clause				
+		for(int i = 0; i < 28; i++)											
 		{
 			write_f << transform(given_cell[i]) << " 0\n";
 		}
@@ -217,7 +217,7 @@ void cli_run(std::string in, std::string form, std::string out)
 	std::string delim = " ";
 	std::string token;
 	int ncell[MAX_SIZE][MAX_SIZE];
-	int row, col, val;
+	int val;
 	int temp;
 	int cnt = 1;
 	int t_cnt = 1;
@@ -246,14 +246,6 @@ void cli_run(std::string in, std::string form, std::string out)
 			{
 				temp = reverse(token);
 				val = temp % 10;
-				temp = temp / 10;
-
-				row = temp % 10;
-				temp = temp / 10;
-
-				col = temp;
-
-				ncell[col-1][row-1] = val;
 
 				write_f << val << " ";
 				if(cnt == 9)
@@ -266,13 +258,12 @@ void cli_run(std::string in, std::string form, std::string out)
 					cnt++;
 				}
 			}
-
 			content.erase(0, pos + delim.length());					//delete up to delim after storing string
 		}
 	}
 }
 
-int transform(int n)
+int transform(int n)			//converts (i,j,k) format to simply a number between 1~729
 {
 	int last = 0;
 	int mid = 0;
@@ -304,7 +295,7 @@ int concat(int a, int b, int c)
 }
 
 
-int reverse(std::string str)
+int reverse(std::string str)	//reverse of transform, converts 1~729 to (i,j,k) format
 {
 	int num;
 	int row, col, val;
